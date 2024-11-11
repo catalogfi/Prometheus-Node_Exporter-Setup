@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Detailed documentation for Prometheus and Node Exporter setup on Linux systems.">
+    <title>Prometheus & Node Exporter Setup Documentation</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        /* Reset and basic styles */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Roboto Mono', monospace;
+        }
+        body {
+            background-color: #f4f4f4;
+            color: #333;
+            padding: 20px;
+            max-width: 960px;
+            margin: auto;
+            line-height: 1.6;
+        }
+        header {
+            text-align: center;
+            padding: 2rem 0;
+            border-bottom: 1px solid #ddd;
+        }
+        header h1 {
+            font-size: 3rem;
+            color: #222;
+            margin-bottom: 0.5rem;
+        }
+        header p {
+            color: #555;
+            font-size: 1.125rem;
+            max-width: 700px;
+            margin: 0 auto;
+        }
+        section {
+            padding: 2rem 0;
+            border-bottom: 1px solid #ddd;
+        }
+        h2 {
+            font-size: 2rem;
+            color: #222;
+            margin-bottom: 1rem;
+        }
+        h3 {
+            font-size: 1.5rem;
+            color: #333;
+            margin-bottom: 0.75rem;
+        }
+        code {
+            background-color: #eaeaea;
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            color: #333;
+        }
+        pre {
+            background-color: #eaeaea;
+            padding: 1rem;
+            border-radius: 6px;
+            overflow-x: auto;
+            margin-top: 0.75rem;
+        }
+        ul {
+            list-style: disc inside;
+            margin-left: 1.5rem;
+        }
+        a {
+            color: #007acc;
+            text-decoration: none;
+        }
+        a:hover {
+            text-decoration: underline;
+        }
+        footer {
+            text-align: center;
+            padding: 2rem 0;
+            font-size: 0.9rem;
+            color: #777;
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <h1>Prometheus & Node Exporter Setup Documentation</h1>
+    <p>Automated scripts to install and configure Prometheus and Node Exporter on Linux systems for easy monitoring and metric collection.</p>
+</header>
+
+<section id="introduction">
+    <h2>Introduction</h2>
+    <p>Prometheus is a powerful open-source system monitoring and alerting toolkit that is widely used for gathering and storing metrics. In this setup, we will install and configure Prometheus along with Node Exporter, a Prometheus exporter that exposes system metrics such as CPU usage, memory usage, disk usage, and more. These metrics can then be collected and visualized in Grafana.</p>
+    <p>The repository provides automation scripts that simplify the installation and configuration process for Prometheus and Node Exporter, ensuring that they are set up as systemd services and configured correctly for monitoring on your Linux system.</p>
+</section>
+
+<section id="features">
+    <h2>Features</h2>
+    <ul>
+        <li><strong>Automated Prometheus Setup</strong>: Installs Prometheus, configures it, and sets it up as a systemd service.</li>
+        <li><strong>Automated Node Exporter Setup</strong>: Installs Node Exporter and sets it up as a systemd service for gathering system metrics.</li>
+        <li><strong>System Architecture Detection</strong>: Automatically detects your system's architecture (x86_64 or aarch64) and installs the appropriate version of Prometheus and Node Exporter.</li>
+        <li><strong>Dependency Management</strong>: Installs required dependencies such as curl, jq, wget, and more, based on your package manager (APT, YUM, or DNF).</li>
+        <li><strong>Systemd Services</strong>: Configures Prometheus and Node Exporter as systemd services to ensure they start on boot and can be managed via systemctl.</li>
+    </ul>
+</section>
+
+<section id="installation">
+    <h2>Installation Steps</h2>
+    <h3>Prerequisites</h3>
+    <ul>
+        <li>A Linux-based server (Ubuntu, CentOS, Fedora, etc.)</li>
+        <li>Root or sudo privileges to install packages and create system services.</li>
+        <li>Internet access to download installation packages.</li>
+    </ul>
+</section>
+
+<section id="prometheus-installation">
+    <h2>Prometheus Installation</h2>
+    <p>Prometheus is an open-source monitoring and alerting toolkit that is used for collecting and querying metrics. This section will guide you through the automated Prometheus installation process using a script that will:</p>
+    <ul>
+        <li>Download the latest Prometheus version based on your system architecture (x86_64 or aarch64).</li>
+        <li>Install Prometheus and necessary files.</li>
+        <li>Create the necessary system directories and set up the proper permissions.</li>
+        <li>Set up basic authentication for Prometheus web UI.</li>
+        <li>Configure Prometheus to scrape metrics from the Node Exporter (installed on your machine). </li>
+        <li>Create a systemd service to automatically start Prometheus on boot.</li>
+    </ul>
+
+    <h3>Step-by-Step Guide</h3>
+    <p>Follow these instructions to install Prometheus using the provided script:</p>
+
+    <h4>1. Download the Latest Version of Prometheus</h4>
+    <p>The script first retrieves the latest release version of Prometheus from the GitHub API. It will download the appropriate version of Prometheus based on your system’s architecture (either <code>linux-amd64</code> or <code>linux-arm64</code>).</p>
+
+    <p><strong>Download URL Construction:</strong> The script constructs the download URL by fetching the latest release version and determining the correct architecture.</p>
+
+    <pre><code>Latest Prometheus version: v2.38.1
+Download URL: https://github.com/prometheus/prometheus/releases/download/v2.38.1/prometheus-2.38.1.linux-amd64.tar.gz</code></pre>
+
+    <h4>2. Architecture Detection</h4>
+    <p>The script checks your system's architecture using the <code>uname -m</code> command. Based on the result, it will download the appropriate version of Prometheus:</p>
+    <ul>
+        <li><code>x86_64</code> (64-bit Intel/AMD) -> <code>prometheus-linux-amd64</code></li>
+        <li><code>aarch64</code> (ARM 64-bit) -> <code>prometheus-linux-arm64</code></li>
+    </ul>
+
+    <h4>3. Installation of Prometheus</h4>
+    <p>The Prometheus binaries are downloaded and extracted into a temporary directory. Then, the script moves the Prometheus binaries and console files to their correct locations:</p>
+    <ul>
+        <li><code>/usr/local/bin/</code> for Prometheus and Promtool binaries.</li>
+        <li><code>/etc/prometheus/</code> for the console files and libraries.</li>
+    </ul>
+
+    <h4>4. User and Directory Setup</h4>
+    <p>The script creates a dedicated user for Prometheus and sets the proper permissions for the required directories:</p>
+    <ul>
+        <li><code>/var/lib/prometheus</code> - for storing Prometheus data.</li>
+        <li><code>/etc/prometheus</code> - for Prometheus configuration files.</li>
+    </ul>
+    <p>The user <code>prometheus</code> is created with no home directory and no shell access, ensuring security.</p>
+
+    <h4>5. Configuration Files</h4>
+    <p>The script creates two essential configuration files for Prometheus:</p>
+    <ul>
+        <li><strong>exporter.yml</strong> - Configures Prometheus to scrape metrics from the Node Exporter (installed on the same machine at port <code>9100</code>).</li>
+        <li><strong>web.yml</strong> - Configures basic authentication for Prometheus, using an admin username and password (with password hash generated using <code>htpasswd</code>).</li>
+    </ul>
+
+    <h4>6. Start Prometheus</h4>
+    <p>Once the installation is complete, the script reloads systemd, enables the Prometheus service to start at boot, and then starts the service immediately.</p>
+    <p>If successful, Prometheus will be running on your system and listening on port 9090. To check the status of the Prometheus service, use:</p>
+    <pre><code>sudo systemctl status prometheus</code></pre>
+
+    <h3>Running the Script</h3>
+    <p>To run the installation script, simply execute the following command:</p>
+    <pre><code>bash &lt;(curl -s https://raw.githubusercontent.com/abdulsaheel/Prometheus-Node_Exporter-Setup/refs/heads/main/prometheus_setup.sh)</code></pre>
+
+
+    <h3>Troubleshooting</h3>
+    <p>If Prometheus does not start correctly, check the system logs using the following command:</p>
+    <pre><code>sudo journalctl -u prometheus.service --no-pager</code></pre>
+    <p>For more detailed troubleshooting, review the <code>/var/log/syslog</code> and <code>/var/log/messages</code> files.</p>
+
+    <h3>Accessing Prometheus</h3>
+    <p>After installation, you can access Prometheus by navigating to the following URL in your web browser:</p>
+    <pre><code>http://your-server-ip:9090</code></pre>
+    <p>Log in using the <code>admin</code> username and the password you specified during setup.</p>
+
+</section>
+
+<section id="node-exporter-installation">
+    <h2>Node Exporter Installation</h2>
+    <p>Node Exporter is a Prometheus exporter that exposes hardware and OS metrics such as CPU, memory, disk, and network statistics. This guide walks you through the automated installation process for Node Exporter on your system using a bash script. The script does the following:</p>
+    <ul>
+        <li>Detects your system's architecture (x86_64 or aarch64) and installs the appropriate version of Node Exporter.</li>
+        <li>Checks for required dependencies and installs them (curl, jq, wget, and apache2-utils or httpd-tools depending on your system).</li>
+        <li>Downloads the latest release of Node Exporter from GitHub.</li>
+        <li>Installs Node Exporter, creates a dedicated user for security, and sets up the necessary system directories.</li>
+        <li>Configures Node Exporter to run as a service using systemd and ensures it starts automatically on boot.</li>
+    </ul>
+
+    <h3>Step-by-Step Guide</h3>
+    <p>Follow these steps to install Node Exporter using the provided bash script:</p>
+
+    <h4>1. Architecture Detection</h4>
+    <p>The script starts by detecting your system's architecture using the <code>uname -m</code> command. Based on the result, it determines which version of Node Exporter to download:</p>
+    <ul>
+        <li><code>x86_64</code> (Intel/AMD 64-bit) -> <code>node_exporter-linux-amd64</code></li>
+        <li><code>aarch64</code> (ARM 64-bit) -> <code>node_exporter-linux-arm64</code></li>
+    </ul>
+    <p>If your architecture is unsupported, the script will exit with an error message.</p>
+
+    <h4>2. Install Required Dependencies</h4>
+    <p>Depending on your Linux distribution, the script installs the necessary packages:</p>
+    <ul>
+        <li><strong>Debian/Ubuntu:</strong> <code>curl</code>, <code>jq</code>, <code>wget</code>, and <code>apache2-utils</code></li>
+        <li><strong>Red Hat/CentOS:</strong> <code>curl</code>, <code>jq</code>, <code>wget</code>, and <code>httpd-tools</code></li>
+        <li><strong>Fedora:</strong> <code>curl</code>, <code>jq</code>, <code>wget</code>, and <code>httpd-tools</code></li>
+    </ul>
+    <p>If the package manager is unsupported, the script prompts you to manually install the required packages.</p>
+
+    <h4>3. Download Latest Node Exporter Release</h4>
+    <p>The script uses GitHub’s API to fetch the latest release of Node Exporter and constructs the appropriate download URL based on your system’s architecture.</p>
+    <pre><code>Download URL: https://github.com/prometheus/node_exporter/releases/download/v0.18.1/node_exporter-0.18.1.linux-amd64.tar.gz</code></pre>
+    <p>It then proceeds to download the <code>tar.gz</code> file from GitHub and verifies the file integrity before extracting it.</p>
+
+    <h4>4. Installation and Setup</h4>
+    <p>Once the download is complete, the script extracts the contents and moves the <code>node_exporter</code> binary to <code>/usr/local/bin/</code> for easy access.</p>
+
+    <h4>5. Creating a Dedicated User for Node Exporter</h4>
+    <p>The script creates a dedicated, non-login user <code>node_exporter</code> with no shell access to ensure security. This minimizes potential attack vectors and ensures that Node Exporter runs with minimal privileges.</p>
+
+    <h4>6. Enable and Start Node Exporter</h4>
+    <p>Once the service is set up, the script reloads systemd, enables the Node Exporter service to start on boot, and starts the service immediately. The following commands are executed:</p>
+    <pre><code>
+sudo systemctl daemon-reload
+sudo systemctl enable node_exporter
+sudo systemctl start node_exporter
+    </code></pre>
+
+    <h4>8. Verify Installation</h4>
+    <p>After installation, you can verify that Node Exporter is running correctly using the following command:</p>
+    <pre><code>sudo systemctl status node_exporter</code></pre>
+    <p>If everything is set up correctly, you should see output indicating that the service is active (running) on port <code>9100</code>.</p>
+
+    <h3>Running the Script</h3>
+    <p>To execute the Node Exporter installation script, run the following command:</p>
+    <pre><code>bash &lt;(curl -s https://raw.githubusercontent.com/abdulsaheel/Prometheus-Node_Exporter-Setup/refs/heads/main/node_exporter_setup.sh)</code></pre>
+
+    <h3>Expected Output</h3>
+    <p>After running the script, you should see output similar to the following:</p>
+    <pre><code>
+Latest Node Exporter version: v0.18.1
+Download URL: https://github.com/prometheus/node_exporter/releases/download/v0.18.1/node_exporter-0.18.1.linux-amd64.tar.gz
+Downloading Node Exporter version v0.18.1 for x86_64...
+Node Exporter installed and running on port 9100.
+    </code></pre>
+
+    <h3>Troubleshooting</h3>
+    <p>If Node Exporter does not start correctly, you can check the logs for any error messages using the following command:</p>
+    <pre><code>sudo journalctl -u node_exporter.service --no-pager</code></pre>
+    <p>Additionally, make sure that the Node Exporter binary is executable and that the systemd service file is correctly configured.</p>
+
+    <h3>Accessing Node Exporter</h3>
+    <p>Node Exporter will be available on port 9100. To access the metrics, navigate to the following URL in your web browser:</p>
+    <pre><code>http://your-server-ip:9100/metrics</code></pre>
+    <p>Replace <code>&lt;your-server-ip&gt;</code> with the IP address of the machine where Node Exporter is installed.</p>
+</section>
+
+
+<section id="verify-installation">
+    <h2>Verify Installation</h2>
+    <h3>Check Prometheus Status</h3>
+    <p>To ensure that Prometheus is running correctly, use the following command:</p>
+    <pre><code>sudo systemctl status prometheus</code></pre>
+    <p>If Prometheus is not running, check the logs for more information:</p>
+    <pre><code>journalctl -u prometheus</code></pre>
+
+    <h3>Check Node Exporter Status</h3>
+    <p>To ensure that Node Exporter is running correctly, use the following command:</p>
+    <pre><code>sudo systemctl status node_exporter</code></pre>
+    <p>If Node Exporter is not running, check the logs for more information:</p>
+    <pre><code>journalctl -u node_exporter</code></pre>
+</section>
+
+<section id="accessing">
+    <h2>Access Prometheus and Node Exporter</h2>
+    <p>Once the installation is complete, you can access the following services:</p>
+
+    <h3>Prometheus Web UI</h3>
+    <p>Prometheus exposes a web-based dashboard for querying and viewing metrics. Access it via:</p>
+    <pre><code>http://&lt;your-server-ip&gt;:9090</code></pre>
+
+    <h3>Node Exporter Metrics</h3>
+    <p>Node Exporter exposes system metrics in a format that Prometheus can scrape. You can view the raw metrics by navigating to:</p>
+    <pre><code>http://&lt;your-server-ip&gt;:9100/metrics</code></pre>
+</section>
+
+<section id="grafana-setup">
+    <h2>Setting Up Grafana Dashboard and Data Source</h2>
+    <p>In this section, we will walk through the process of setting up Grafana and configuring the data source, so it can pull metrics from Prometheus. The setup involves using a script that will automatically configure a new data source in Grafana and create a pre-configured dashboard for visualizing the metrics collected from your Prometheus server.</p>
+
+    <h3>Prerequisites</h3>
+    <ul>
+        <li><strong>Grafana instance:</strong> Make sure that Grafana is installed and accessible on your system (e.g., http://your-server-ip:3000).</li>
+        <li><strong>Grafana API Token:</strong> You need a valid Grafana API token with permission to add data sources and dashboards. You can generate this token from the Grafana UI (under "Configuration" &gt; "API Keys").</li>
+        <li><strong>Middleware Server:</strong> The script uses a middleware server to interact with the Grafana instance via API. Make sure that the middleware server is set up and running.</li>
+    </ul>
+
+    <h3>Step-by-Step Guide</h3>
+    <p>The <strong>setup_dashboard_and_datasource.sh</strong> script will automate the following tasks:</p>
+    <ul>
+        <li>Configure Prometheus as a data source in Grafana.</li>
+        <li>Create a dashboard in Grafana to visualize the metrics from the Prometheus instance.</li>
+    </ul>
+
+    <p>The script asks for the following inputs:</p>
+    <ul>
+        <li><strong>Grafana URL:</strong> The URL of your Grafana instance (e.g., http://localhost:3000).</li>
+        <li><strong>Grafana API Token:</strong> The token generated from your Grafana instance that allows API interaction.</li>
+        <li><strong>Middleware Server URL:</strong> The URL of the middleware server that will handle the requests to Grafana's API (e.g., http://middleware-server:5000).</li>
+    </ul>
+
+    <h3>Script Breakdown</h3>
+    <p>The script will:</p>
+    <ol>
+        <li><strong>Get system details:</strong> The script captures the system hostname, public IP address, and creates a unique data source name and UID based on the system’s information.</li>
+        <li><strong>Create a JSON payload:</strong> A JSON payload is generated that contains all the necessary configuration details, such as:
+            <ul>
+                <li><strong>Data Source Name:</strong> Name for the Prometheus data source, such as <code>hostname prometheus stream</code>.</li>
+                <li><strong>Data Source UID:</strong> A unique identifier for the data source (e.g., based on the fully qualified domain name).</li>
+                <li><strong>Data Source URL:</strong> The Prometheus server URL, which typically includes the system's public IP address (e.g., http://<your-public-ip>:9090).</li>
+                <li><strong>Dashboard Title:</strong> Title of the dashboard (e.g., <code>hostname Instance Metrics Dashboard</code>).</li>
+                <li><strong>Dashboard Description:</strong> A description of what the dashboard represents, including a summary of the metrics it will show (CPU, memory, disk usage, etc.).</li>
+            </ul>
+        </li>
+        <li><strong>Send the request:</strong> The script sends the JSON payload to the middleware server, which will forward the request to Grafana’s API to create the data source and dashboard.</li>
+    </ol>
+
+    <h3>Running the Script</h3>
+    <p>To run the script, execute the following command in your terminal:</p>
+    <pre><code>bash &lt;(curl -s https://raw.githubusercontent.com/abdulsaheel/Prometheus-Node_Exporter-Setup/refs/heads/main/setup_dashboard_and_datasource.sh)</code></pre>
+
+    <p>The script will prompt you for the following inputs:</p>
+    <pre><code>Enter Grafana URL (e.g., http://localhost:3000):</code></pre>
+    <pre><code>Enter Grafana API Token:</code></pre>
+    <pre><code>Enter Middleware Server URL (e.g., http://middleware-server:5000):</code></pre>
+
+    <h3>Response and Confirmation</h3>
+    <p>Once the request is processed, the script will output a response based on the success of the operation:</p>
+    <ul>
+        <li><strong>Success:</strong> If the dashboard and data source are created successfully, you will see a message: <code>Dashboard created successfully!</code></li>
+        <li><strong>Failure:</strong> If there’s an error, you will receive a message detailing the issue, such as <code>Failed to create dashboard. Please check the server logs.</code></li>
+    </ul>
+
+    <h3>Accessing the Dashboard</h3>
+    <p>Once the dashboard is created, you can access it by logging into Grafana and selecting the newly created dashboard. You should now see metrics for your system, including CPU usage, memory, disk usage, and network statistics.</p>
+
+    <h3>Sample JSON Payload</h3>
+    <p>Here’s an example of the JSON payload that the script generates:</p>
+    <pre><code>
+{
+  "data_source_name": "hostname prometheus stream",
+  "data_source_uid": "hostname-unique-id",
+  "data_source_url": "http://<your-public-ip>:9090",
+  "dashboard_title": "hostname Instance Metrics Dashboard",
+  "dashboard_description": "This dashboard monitors metrics for the hostname instance, providing real-time insights into CPU, memory, and network usage.",
+  "basic_auth_user": "admin",
+  "basic_auth_password": "password",
+  "grafana_url": "http://localhost:3000",
+  "grafana_token": "your-grafana-api-token"
+}
+    </code></pre>
+</section>
+
+
+<section id="troubleshooting">
+    <h2>Troubleshooting</h2>
+    <h3>Prometheus or Node Exporter is Not Starting</h3>
+    <p>If either Prometheus or Node Exporter is not starting, you can check their respective service logs:</p>
+    <pre><code>journalctl -u prometheus</code></pre>
+    <pre><code>journalctl -u node_exporter</code></pre>
+    <p>Ensure that there are no conflicting processes or misconfigurations. If issues persist, consider restarting the services:</p>
+    <pre><code>sudo systemctl restart prometheus</code></pre>
+    <pre><code>sudo systemctl restart node_exporter</code></pre>
+
+    <h3>Prometheus is Not Collecting Metrics</h3>
+    <p>Ensure that Node Exporter is running correctly and that Prometheus is configured to scrape metrics from the correct target:</p>
+    <pre><code>sudo systemctl status node_exporter</code></pre>
+    <p>Check the Prometheus target configuration at <code>http://&lt;prometheus-server-ip&gt;:9090/targets</code> to ensure Node Exporter is listed and correctly scraped.</p>
+</section>
+
+<footer>
+    <p>&copy; 2024 Prometheus & Node Exporter Setup Documentation | Licensed under MIT</p>
+</footer>
+
+</body>
+</html>
