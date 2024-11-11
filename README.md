@@ -32,7 +32,7 @@ To run the scripts, download the respective installation scripts from this repos
 Run the script to install Prometheus:
 
 ```bash
-bash <(curl -s https://raw.githubusercontent.com/abdulsaheel/Prometheus-Node_Exporter-Setup/refs/heads/main/prometheus_setup.sh)
+bash <(curl -s https://raw.githubusercontent.com/catalogfi/Prometheus-Node_Exporter-Setup/refs/heads/main/prometheus_setup.sh)
 ```
 
 #### Node Exporter Installation
@@ -40,7 +40,7 @@ bash <(curl -s https://raw.githubusercontent.com/abdulsaheel/Prometheus-Node_Exp
 Run the script to install Node Exporter:
 
 ```bash
-bash <(curl -s https://raw.githubusercontent.com/abdulsaheel/Prometheus-Node_Exporter-Setup/refs/heads/main/node_exporter_setup.sh)
+bash <(curl -s https://raw.githubusercontent.com/catalogfi/Prometheus-Node_Exporter-Setup/refs/heads/main/node_exporter_setup.sh)
 ```
 
 ---
@@ -72,7 +72,7 @@ sudo systemctl status node_exporter
 ### Setting Up Grafana Dashboard and Data Source
 To set up the Grafana dashboard and data source, run:
 ```
-bash <(curl -s https://raw.githubusercontent.com/abdulsaheel/Prometheus-Node_Exporter-Setup/refs/heads/main/setup_dashboard_and_datasource.sh)
+bash <(curl -s https://raw.githubusercontent.com/catalogfi/Prometheus-Node_Exporter-Setup/refs/heads/main/setup_dashboard_and_datasource.sh)
 ```
 
 
