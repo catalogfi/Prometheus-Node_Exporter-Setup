@@ -1,5 +1,30 @@
 #!/bin/bash
 
+# Check and install required packages based on the detected package manager
+if command -v apt-get &> /dev/null; then
+    echo "Debian-based distribution detected (e.g., Ubuntu). Installing relevant packages..."
+    sudo apt-get update
+    sudo apt-get install -y curl jq wget apache2-utils
+    echo "Packages installed successfully on Debian-based distribution."
+
+elif command -v yum &> /dev/null; then
+    echo "Red Hat-based distribution detected (e.g., CentOS/RHEL). Installing relevant packages..."
+    sudo yum update -y
+    sudo yum install -y curl jq wget httpd-tools
+    echo "Packages installed successfully on Red Hat-based distribution."
+
+elif command -v dnf &> /dev/null; then
+    echo "Fedora-based distribution detected. Installing relevant packages..."
+    sudo dnf update -y
+    sudo dnf install -y curl jq wget httpd-tools
+    echo "Packages installed successfully on Fedora-based distribution."
+
+else
+    echo "Unsupported package manager. Please install packages manually."
+    echo "Required packages: curl, jq, wget, apache2-utils (or httpd-tools on Red Hat/Fedora systems)"
+    exit 1
+fi
+
 
 # Get the latest version of Prometheus
 LATEST_PROMETHEUS_VERSION=$(curl -s https://api.github.com/repos/prometheus/prometheus/releases/latest | jq -r .tag_name)
